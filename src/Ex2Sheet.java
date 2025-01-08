@@ -1,5 +1,3 @@
-import com.sun.source.tree.BreakTree;
-
 import java.io.IOException;
 // Add your documentation below:
 
@@ -23,7 +21,7 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
-    public String value(int x, int y) {  // what in the cell
+    public String value(int x, int y) {  // מה רואים בתא (בלי חישוב)
         String ans = Ex2Utils.EMPTY_CELL;
 
         Cell c = get(x, y);
@@ -33,31 +31,35 @@ public class Ex2Sheet implements Sheet {
                 return ans;
             }
             if (SCell.isForm(ans)) {
-                ans = String.valueOf(SCell.computeForm(ans));
+                ans = String.valueOf(SCell.isForm(ans));
                 return ans;
             }
-        } return ans;
+        }
+        return ans;
     }
 
     @Override
-    public Cell get(int x, int y) {
-        if (isIn(x, y)) {
-            return table[x][y];
-        }else{
+    public Cell get(int x, int y) { //get x y return cell
+        if (!isIn(x, y)) {
             return null;
+        } else {
+            return table[x][y];
         }
     }
 
+
     @Override
-    public Cell get(String cords) { //get string return x y
+    public Cell get(String cords) { //get string return cell
         Cell ans = null;
         int x = cords.indexOf(cords.charAt(0));
         if (cords.length() == 2) {
-        int y = cords.charAt(1);
+            int y = cords.charAt(1);
+
         } else {
             int y = cords.charAt(1 + 2);
         }
         return ans;
+
     }
 
     @Override
@@ -98,11 +100,12 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public int[][] depth() {
-        int[][] ans = new int[width()][height()];
-        // Add your code here
+      int[][] ans = new int [width()] [height()];
+        {
+              return ans;
+        }
+        //
 
-        // ///////////////////
-        return ans;
     }
 
     @Override
@@ -120,13 +123,22 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
-    public String eval(int x, int y) { // what the cell contains without computation
-        String ans = null;
-        if (get(x, y) != null) {
-            ans = get(x, y).toString(); }
-        double w = SCell.computeForm(ans);
-        String s = String.valueOf(w);
-        return s;
-    }
+    public String eval(int x, int y) { //מוציאה את הערך
+        String gValue = value(x, y);
+//        //להכניס ל value כדי שיצא מה שכתוב בפנים
+//        if (gValue == null) {
+//            return null;
+//        }
+//        if (SCell.isNumber(gValue) || SCell.isText(gValue)) {
+//            return gValue;
+//        } else{
+//            if (SCell.isForm(gValue)) {
+//                double G = SCell.computeForm(gValue);
+//                String g = String.valueOf(G);
+//                return g;
+//            } else {
+                return "ERR;";
+            }
 }
+
 

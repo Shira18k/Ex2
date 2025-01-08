@@ -5,20 +5,20 @@ public class SCell implements Cell {
     private int type;  // להעתיק מUTILS כל סוג מה המספר
 
 
-    public SCell(String s) {
+    public SCell(String s) { // shows in the table
         if (isText(s)) {
             setType(1);
             setData(s);
         }
         if (isNumber(s)) {
-            setType(2); // מה הצבע
-            setData(s); // מה יוצא בסוף
+            setType(2);
+            setData(s);
         }
         if (isForm(s)) {
-            setType(3); // מה הצבע
-            setData(computeForm(s));
+            setType(3);
+            setData(Double.toString(computeForm(s)));
+            setData(s);
         }
-        setData(s);
     }
 
     @Override
@@ -99,9 +99,9 @@ public class SCell implements Cell {
             // Correctness of "(" ")"
             int openCount = 0;
             for (int i = 0; i < a.length(); i++) {
-                char current = a.charAt(i);
+                char A = a.charAt(i);
 
-                if (current == '(') {
+                if (A == '(') {
                     openCount++;
                     if (i < a.length() - 1) { // legal chars after "("
                         char next = a.charAt(i + 1);
@@ -109,7 +109,7 @@ public class SCell implements Cell {
                             return false;
                         }
                     }
-                } else if (current == ')') {
+                } else if (A == ')') {
                     openCount--;
                     if (openCount < 0) {
                         return false;
@@ -133,10 +133,10 @@ public class SCell implements Cell {
 
             //if the next or before the Op illegal
             for (int i = 0; i < a.length(); i++) {
-                char current = a.charAt(i); // תו נוכחי בלולאה
+                char current = a.charAt(i);
                 if (current == '*' || current == '/' || current == '+' || current == '-') {
-                    char before = i > 0 ? a.charAt(i - 1) : '\0'; // תו לפני האופרטור או מספר או (
-                    char after = i < a.length() - 1 ? a.charAt(i + 1) : '\0'; // מספר או ) תו אחרי האופרטור
+                    char before = i > 0 ? a.charAt(i - 1) : '\0';
+                    char after = i < a.length() - 1 ? a.charAt(i + 1) : '\0';
 
                     // for case like (-x)
                     if (current == '-') {
@@ -178,7 +178,6 @@ public class SCell implements Cell {
             }
         }
 
-
         //step 2 - check what kind of Op the inside contain
         if (s.contains("*") || s.contains("/")) {
             return calculateOperation(s, "*/");
@@ -188,8 +187,7 @@ public class SCell implements Cell {
             return calculateOperation(s, "+-");
         }
 
-
-        return Double.parseDouble(s.trim()); //if left just a num- return num.
+        return Double.parseDouble(s.trim()); //if left just a num- return num. (without " ")
     }
 
     //step 3- if s contains Op- do some act
@@ -208,11 +206,21 @@ public class SCell implements Cell {
                     case '+':
                         return left + right;
                     case '-':
+                        if (i > 0 && s.charAt(i - 1) == ')') {
+                            int start = i + 1;
+                            int end = s.indexOf(")", i);
+                            if (start < end) {
+                                double num = computeForm(s.substring(start, end));  // אם יש סוגריים
+                                return -num;
+                            } else {
+                                return -Double.parseDouble(s.substring(i + 1).trim());
+                            }
+                        }
                         return left - right;
                 }
             }
         }
-        throw new IllegalArgumentException("Unexpected error in formula computation.");
+        throw new IllegalArgumentException("not good");
     }
 }
 

@@ -3,9 +3,7 @@
 public class CellEntry  implements Index2D {
 
     @Override
-    public boolean isValid() {
-        return false;
-    } //
+    public boolean isValid() {return false;}
 
     @Override
     public int getX() {return Ex2Utils.ERR;}
