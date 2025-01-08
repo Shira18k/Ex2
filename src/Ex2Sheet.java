@@ -1,3 +1,5 @@
+import com.sun.source.tree.BreakTree;
+
 import java.io.IOException;
 // Add your documentation below:
 
@@ -8,41 +10,53 @@ public class Ex2Sheet implements Sheet {
     // ///////////////////
     public Ex2Sheet(int x, int y) {
         table = new SCell[x][y];
-        for(int i=0;i<x;i=i+1) {
-            for(int j=0;j<y;j=j+1) {
+        for (int i = 0; i < x; i = i + 1) {
+            for (int j = 0; j < y; j = j + 1) {
                 table[i][j] = new SCell("");
             }
         }
         eval();
     }
+
     public Ex2Sheet() {
         this(Ex2Utils.WIDTH, Ex2Utils.HEIGHT);
     }
 
     @Override
-    public String value(int x, int y) {
+    public String value(int x, int y) {  // what in the cell
         String ans = Ex2Utils.EMPTY_CELL;
 
-        Cell c = get(x,y);
-        if(c!=null) {ans = c.toString();}
-        else {
-            char column = (char) ('A' + x);
-            return column + String.valueOf(y + 1);
-        }
-        return ans;
+        Cell c = get(x, y);
+        if (c != null) {
+            ans = c.toString();
+            if (SCell.isNumber(ans) || SCell.isText(ans)) {
+                return ans;
+            }
+            if (SCell.isForm(ans)) {
+                ans = String.valueOf(SCell.computeForm(ans));
+                return ans;
+            }
+        } return ans;
     }
 
     @Override
     public Cell get(int x, int y) {
-        return table[x][y];
+        if (isIn(x, y)) {
+            return table[x][y];
+        }else{
+            return null;
+        }
     }
 
     @Override
-    public Cell get(String cords) {
+    public Cell get(String cords) { //get string return x y
         Cell ans = null;
-        // Add your code here
-
-        /////////////////////
+        int x = cords.indexOf(cords.charAt(0));
+        if (cords.length() == 2) {
+        int y = cords.charAt(1);
+        } else {
+            int y = cords.charAt(1 + 2);
+        }
         return ans;
     }
 
@@ -50,10 +64,12 @@ public class Ex2Sheet implements Sheet {
     public int width() {
         return table.length;
     }
+
     @Override
     public int height() {
         return table[0].length;
     }
+
     @Override
     public void set(int x, int y, String s) {
         Cell c = new SCell(s);
@@ -62,8 +78,9 @@ public class Ex2Sheet implements Sheet {
 
         /////////////////////
     }
+
     @Override
-    public void eval() {
+    public void eval() { //
         int[][] dd = depth();
         // Add your code here
 
@@ -71,11 +88,11 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
-    public boolean isIn(int xx, int yy) {
-        boolean ans = xx>=0 && yy>=0;
-        // Add your code here
-
-        /////////////////////
+    public boolean isIn(int xx, int yy) { // chekcing if x, y in the range
+        boolean ans = xx >= 0 && yy >= 0;
+        if (xx >= 0 && yy >= 0 && xx < width() && yy < height()) {
+            return true;
+        }
         return ans;
     }
 
@@ -103,12 +120,13 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
-    public String eval(int x, int y) {
+    public String eval(int x, int y) { // what the cell contains without computation
         String ans = null;
-        if(get(x,y)!=null) {ans = get(x,y).toString();}
-        // Add your code here
-
-        /////////////////////
-        return ans;
-        }
+        if (get(x, y) != null) {
+            ans = get(x, y).toString(); }
+        double w = SCell.computeForm(ans);
+        String s = String.valueOf(w);
+        return s;
+    }
 }
+
