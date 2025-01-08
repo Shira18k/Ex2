@@ -61,7 +61,7 @@ class SCellTest {
 
     @Test
     void computFormTest() {
-        String formula = "=(8-9)"; // נוסחה מורכבת עם סוגריים וכמה סוגי אופרטורים
+        String formula = "=(6+888*2)"; // נוסחה מורכבת עם סוגריים וכמה סוגי אופרטורים
         double result = SCell.computeForm(formula);
         System.out.println("Result: " + result); // מצפה לתוצאה מדויקת לפי פעולות חשבון
     }
