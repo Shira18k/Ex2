@@ -66,8 +66,8 @@ public class SCell implements Cell {
 
     }
 
-public static String replacePattern(String input) {
-    // Replace patterns with letter + number (0-99) with "0"
+public static String replacePattern(String input) { // Replace cell by num
+
     return input.replaceAll("(?i)[a-z][0-9]{1,2}\\b", "0");
 }
 
@@ -88,13 +88,13 @@ public static String replacePattern(String input) {
         }
     }
 
-    public boolean isForm(String a) { //valid of form
+    public boolean isForm(String a) { // right formula (include cells)
 
         if (a == null || a.isEmpty()) {
             return false;
         }
-        if (replacePattern(a) != null) {  // אם הפונקציה מחזירה משהו, סימן שהתאים הומרו
-            a = replacePattern(a);        // ההמרה לתוצאה החדשה
+        if (replacePattern(a) != null) {
+            a = replacePattern(a);
         }
 
         int equalsCount = 0;
@@ -143,12 +143,10 @@ public static String replacePattern(String input) {
                 }
             }
 
-            // legal chars in the formula
             if (!a.matches("[\\d()+\\-*/\\s.]*")) {
                 return false;
             }
 
-            //if the next or before the Op illegal
             for (int i = 0; i < a.length(); i++) {
                 char current = a.charAt(i);
                 if (current == '*' || current == '/' || current == '+' || current == '-') {
@@ -179,10 +177,6 @@ public static String replacePattern(String input) {
         }
 
         return false;
-    }
-
-    private Cell get(int x, int y) {
-        return null;
     }
 
     public double computeForm(String formula) {
