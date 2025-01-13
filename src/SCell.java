@@ -1,11 +1,15 @@
 // Add your documentation below:
+import javax.management.StringValueExp;
+import java.util.Stack;
 
 public class SCell implements Cell {
     private String line;
     private int type;  // להעתיק מUTILS כל סוג מה המספר
+    private Ex2Sheet sheet;
 
 
-    public SCell(String s) { // shows in the table
+    public SCell(String s, Ex2Sheet sheet) { // shows in the table
+        this.sheet = sheet;
         if (isText(s)) {
             setType(1);
             setData(s);
@@ -16,9 +20,9 @@ public class SCell implements Cell {
         }
         if (isForm(s)) {
             setType(3);
-            setData(Double.toString(computeForm(s)));
-            setData(s);
+            setData(computeForm(s) + "");
         }
+        setData(s);
     }
 
     @Override
@@ -63,7 +67,7 @@ public class SCell implements Cell {
 
     }
 
-    public static boolean isNumber(String a) {
+    public boolean isNumber(String a) { // if is a num
         try {
             Double.parseDouble(a);
             return true;
@@ -72,58 +76,69 @@ public class SCell implements Cell {
         }
     }
 
-    public static boolean isText(String a) {
-        if (!isNumber(a) || !isForm(a)) {
-            return true;
-        } else {
+    public boolean isText(String a) { //if is a text
+        if (isNumber(a) || isForm(a)) {
             return false;
+        } else {
+            return true;
         }
     }
 
-    public static boolean isForm(String a) { //
+    public boolean isForm(String a) { //valid of form
 
         if (a == null || a.isEmpty()) {
             return false;
         }
-
-        //?? cells
-        if (a.matches("[A-Z][1-9][0-9]*")) {
-            return true;
+        if (Character.isLetter(a.charAt(0))) { // if cells
+            CellEntry cell = new CellEntry(a);
+            int x = cell.getX();
+            int y = cell.getY();
         }
 
+        int equalsCount = 0;
+        for (int i = 0; i < a.length(); i++) {
+            if (a.charAt(i) == '=') {
+                equalsCount++;
+                if (equalsCount != 1) {
+                    return false;
+                }
+            }
+        }
         if (a.startsWith("=")) {
             a = a.substring(1);
 
             a = a.replaceAll(" ", "");
 
             // Correctness of "(" ")"
-            int openCount = 0;
-            for (int i = 0; i < a.length(); i++) {
-                char A = a.charAt(i);
+            if (a.contains("(") || a.contains(")")) {
+                int openCount = 0;
+                for (int i = 0; i < a.length(); i++) {
+                    char A = a.charAt(i);
 
-                if (A == '(') {
-                    openCount++;
-                    if (i < a.length() - 1) { // legal chars after "("
-                        char next = a.charAt(i + 1);
-                        if (!Character.isDigit(next) && next != '(' && next != '-') {
+                    if (A == '(') {
+                        openCount++;
+                        if (i < a.length() - 1) { // legal chars after "("
+                            char next = a.charAt(i + 1);
+                            if (!Character.isDigit(next) && next != '(' && next != '-') {
+                                return false;
+                            }
+                        }
+                    } else if (A == ')') {
+                        openCount--;
+                        if (openCount < 0) {
                             return false;
                         }
-                    }
-                } else if (A == ')') {
-                    openCount--;
-                    if (openCount < 0) {
-                        return false;
-                    }
-                    if (i > 0) { // legal chars Before ")"
-                        char B = a.charAt(i - 1);
-                        if (!Character.isDigit(B) && B != ')') {
-                            return false;
+                        if (i > 0) { // legal chars Before ")"
+                            char B = a.charAt(i - 1);
+                            if (!Character.isDigit(B) && B != ')') {
+                                return false;
+                            }
                         }
                     }
                 }
-            }
-            if (openCount != 0) {
-                return false;
+                if (openCount != 0) {
+                    return false;
+                }
             }
 
             // legal chars in the formula
@@ -164,65 +179,89 @@ public class SCell implements Cell {
         return false;
     }
 
-    public static double computeForm(String s) {
-        if (isForm(s)) {
-            s = s.substring(1);
-            //step 1 - if contains "( )" check what inside.
-            if (s.contains("(")) {
-
-                int start = s.lastIndexOf("("); // the last "(" = start
-                int end = s.indexOf(")", start); // the ")" in correlation to start
-
-                double middle = computeForm(s.substring(start + 1, end)); //the value of the inside of start & end
-                s = s.substring(0, start) + middle + s.substring(end + 1); // the new s with the middle
-            }
-        }
-
-        //step 2 - check what kind of Op the inside contain
-        if (s.contains("*") || s.contains("/")) {
-            return calculateOperation(s, "*/");
-        }
-
-        if (s.contains("+") || s.contains("-")) {
-            return calculateOperation(s, "+-");
-        }
-
-        return Double.parseDouble(s.trim()); //if left just a num- return num. (without " ")
+    private Cell get(int x, int y) {
+        return null;
     }
 
-    //step 3- if s contains Op- do some act
-    public static double calculateOperation(String s, String operators) { //if s contains Op- do some act.
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (operators.indexOf(c) != -1) {
-                double left = computeForm(s.substring(0, i)); //
-                double right = computeForm(s.substring(i + 1)); //
+    public double computeForm(String formula) {
 
-                switch (c) {                //actions for each Op
-                    case '*':
-                        return left * right;
-                    case '/':
-                        return left / right;
-                    case '+':
-                        return left + right;
-                    case '-':
-                        if (i > 0 && s.charAt(i - 1) == ')') {
-                            int start = i + 1;
-                            int end = s.indexOf(")", i);
-                            if (start < end) {
-                                double num = computeForm(s.substring(start, end));  // אם יש סוגריים
-                                return -num;
-                            } else {
-                                return -Double.parseDouble(s.substring(i + 1).trim());
-                            }
-                        }
-                        return left - right;
+        if (formula == null || formula.isEmpty()) {
+            System.out.println("Error");
+            return -1;
+        }
+        if (formula.charAt(0) == '=') {
+            formula = formula.substring(1);
+        }
+
+        formula = formula.replaceAll(" ", "");
+        String result = "";
+
+        if (formula.contains("(")) {
+            int start = formula.indexOf("(") + 1;
+            int end = findBracket(formula, start - 1);
+
+            String insideBrackets = formula.substring(start, end);
+            String beforeBrackets = formula.substring(0, start - 1);
+            String afterBrackets = formula.substring(end + 1);
+
+            result = beforeBrackets + computeForm(insideBrackets) + afterBrackets;
+            formula = result;
+        }
+
+        if (!containsOperator(formula)) { // is a cell
+            if (Character.isLetter(formula.charAt(0))) {
+                CellEntry cell = new CellEntry(formula);
+                int x = cell.getX();
+                int y = cell.getY();
+                return this.computeForm(this.sheet.get(x, y).getData()); //compute value of cell
+            }
+            return Double.parseDouble(formula);
+        }
+
+        if (formula.contains("+")) {
+            int index = formula.indexOf('+');
+            return computeForm(formula.substring(0, index)) + computeForm(formula.substring(index + 1));
+        }
+
+        if (formula.contains("-")) {
+            int index = formula.indexOf('-');
+            return computeForm(formula.substring(0, index)) - computeForm(formula.substring(index + 1));
+        }
+
+        if (formula.contains("*")) {
+            int index = formula.indexOf('*');
+            return computeForm(formula.substring(0, index)) * computeForm(formula.substring(index + 1));
+        }
+
+        if (formula.contains("/")) {
+            int index = formula.indexOf('/');
+            return computeForm(formula.substring(0, index)) / computeForm(formula.substring(index + 1));
+        }
+
+        return Double.parseDouble(result);
+    }
+
+    public static boolean containsOperator(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '*' || c == '+' || c == '/' || c == '-') {
+                return true;
+            }
+        }
+        return false;
+    }
+    private int findBracket(String str, int openIndex) {
+        int openCount = 1;
+        for (int i = openIndex + 1; i < str.length(); i++) {
+            if (str.charAt(i) == '(') {
+                openCount++;
+            } else if (str.charAt(i) == ')') {
+                openCount--;
+                if (openCount == 0) {
+                    return i;
                 }
             }
         }
-        throw new IllegalArgumentException("not good");
+        throw new IllegalArgumentException("No matching closing bracket found.");
     }
 }
-
-
-

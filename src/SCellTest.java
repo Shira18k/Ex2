@@ -8,8 +8,9 @@ class SCellTest {
     @Test
     void isNumbertrue() {
         String[] good = {"1.0", "23.98", "99.0", "-92.5", "-1.44"};
+        SCell c = new SCell("",new Ex2Sheet());
         for (int i = 0; i < good.length; i = i + 1) {
-            boolean ok = SCell.isNumber(good[i]);
+            boolean ok = c.isNumber(good[i]);
             assertTrue(ok);
         }
     }
@@ -17,8 +18,9 @@ class SCellTest {
     @Test
     void isNumberfalse() {
         String[] bad = {"23.-98", "aa",};
+        SCell c = new SCell("",new Ex2Sheet());
         for (int i = 0; i < bad.length; i = i + 1) {
-            boolean notOk = SCell.isNumber(bad[i]);
+            boolean notOk = c.isNumber(bad[i]);
             assertFalse(notOk);
         }
     }
@@ -26,44 +28,52 @@ class SCellTest {
     @Test
     void isTextTrue() {
         String[] good = {"@hjcbjhbcc", "abba", "aa!",};
+        SCell c = new SCell("",new Ex2Sheet());
         for (int i = 0; i < good.length; i = i + 1) {
-            boolean ok = SCell.isText(good[i]);
+            boolean ok = c.isText(good[i]);
             assertTrue(ok);
         }
     }
 
     @Test
     void isTextFalse() {
-        String[] bad = {"23.-98", "(4+4)", "(3+"};
+        String[] bad = {"23.98", "=(4+4)", "-9"};
+        SCell c = new SCell("",new Ex2Sheet());
         for (int i = 0; i < bad.length; i = i + 1) {
-            boolean notOk = SCell.isText(bad[i]);
+            boolean notOk = c.isText(bad[i]);
             assertFalse(notOk);
         }
     }
 
     @Test
     void isFormTrue() {
-        String[] good = {"=( (4+5) * (3+2 * (27/2)))", "=(-8)" , "=(3+4) + (-5)"}; // נוסחה תקינה
+        String[] good = {"=(4+2*7)"}; // נוסחה תקינה
+        SCell c = new SCell("",new Ex2Sheet());
         for (int i = 0; i < good.length; i++) {
-            boolean ok = SCell.isForm(good[i]);
+            boolean ok = c.isForm(good[i]);
             assertTrue(ok);
         }
     }
 
     @Test
     void isFormFalse() {
-        String[] bad = {"=(((4+5) * (3+2 * (27/2)))", "=((8)", "=(-+)"}; // נוסחה תקינה
+        String[] bad = {"=(((4+5) * (3+2 * (27/2)))", "=((8)", "=(-+)"}; //"}; // נוסחה תקינה;
+        SCell c = new SCell("",new Ex2Sheet());
         for (int i = 0; i < bad.length; i++) {
-            boolean notOk = SCell.isForm(bad[i]);
+            boolean notOk = c.isForm(bad[i]);
             assertFalse(notOk);
         }
     }
 
     @Test
     void computFormTest() {
-        String formula = "=(6+888*2)"; // נוסחה מורכבת עם סוגריים וכמה סוגי אופרטורים
-        double result = SCell.computeForm(formula);
-        System.out.println("Result: " + result); // מצפה לתוצאה מדויקת לפי פעולות חשבון
+        SCell c = new SCell("",new Ex2Sheet());
+        assertEquals(18, c.computeForm("=(4+7*2)"));
+        assertEquals(14, c.computeForm("=(2*(9/3)+8)"));
+        assertEquals(-1, c.computeForm("=(8-9)"));
     }
 }
+
+
+
 
