@@ -1,6 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 // in this class we wrote a help functions for the table
 
 public class Ex2Sheet implements Sheet {
@@ -138,19 +136,38 @@ public class Ex2Sheet implements Sheet {
     }
 
     @Override
-    public void load(String fileName) throws IOException {
-        //trying
+    public void load(String fileName) throws IOException { //using in saved file
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(fileName));
+            reader.readLine();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",", 3);
+                if (parts.length >= 3) {
+                    int x = Integer.parseInt(parts[0].trim());
+                    int y = Integer.parseInt(parts[1].trim());
+                    String data = parts[2].trim();
+                    if (isIn(x, y)) {
+                        set(x, y, data);
+                    }
+                }
+            }
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        eval();
     }
 
     @Override
-    public void save(String fileName) throws IOException {
+    public void save(String fileName) throws IOException { // saving cell as a fail
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
-        // Writing the header line - can be ignored
         writer.write("I2CS ArielU: SpreadSheet (Ex2) assignment - this line should be ignored in the load method");
         writer.newLine();
 
-        // Iterate over all cells in the spreadsheet
         for (int x = 0; x < width(); x++) {
             for (int y = 0; y < height(); y++) {
                 Cell cell = get(x, y);
@@ -164,7 +181,7 @@ public class Ex2Sheet implements Sheet {
         writer.close();
     }
     @Override
-    public String eval(int x, int y) { //מוציאה את הערך
+    public String eval(int x, int y) {
         String ans = null;
         SCell c = (SCell) get(x, y);
         if (c != null) {
