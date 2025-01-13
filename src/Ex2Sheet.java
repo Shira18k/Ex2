@@ -1,11 +1,11 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-// Add your documentation below:
+// in this class we wrote a help functions for the table
 
 public class Ex2Sheet implements Sheet {
     private Cell[][] table;
-    // Add your code here
-
-    // ///////////////////
+    //////
     public Ex2Sheet(int x, int y) {
         table = new SCell[x][y];
         for (int i = 0; i < x; i = i + 1) {
@@ -30,19 +30,15 @@ public class Ex2Sheet implements Sheet {
 
             switch (type) {
                 case Ex2Utils.ERR_FORM_FORMAT:
-                    System.out.println("1");
                     return Ex2Utils.ERR_FORM;
 
                 case Ex2Utils.ERR_CYCLE_FORM:
-                    System.out.println("2");
                     return Ex2Utils.ERR_CYCLE;
 
                 case Ex2Utils.TEXT:
-                    System.out.println("3");
                     return c.getData();
 
                 case Ex2Utils.NUMBER:
-                    System.out.println("4");
                     return Double.parseDouble(c.getData()) + "";
 
                 case Ex2Utils.FORM:
@@ -92,11 +88,11 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public void set(int x, int y, String s) {
-        Cell c = new SCell(s, this);
-        table[x][y] = c;
-        // Add your code here
+        if (!isIn(x, y)) return;
 
-        /////////////////////
+        Cell c = new SCell(s,this);
+        table[x][y] = c;
+        eval();
     }
 
     @Override
@@ -143,18 +139,30 @@ public class Ex2Sheet implements Sheet {
 
     @Override
     public void load(String fileName) throws IOException {
-        // Add your code here
-
-        /////////////////////
+        //trying
     }
 
     @Override
     public void save(String fileName) throws IOException {
-        // Add your code here
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 
-        /////////////////////
+        // Writing the header line - can be ignored
+        writer.write("I2CS ArielU: SpreadSheet (Ex2) assignment - this line should be ignored in the load method");
+        writer.newLine();
+
+        // Iterate over all cells in the spreadsheet
+        for (int x = 0; x < width(); x++) {
+            for (int y = 0; y < height(); y++) {
+                Cell cell = get(x, y);
+                if (cell != null && !cell.getData().isEmpty()) {
+                    writer.write(x + "," + y + "," + cell.getData());
+                    writer.newLine();
+                }
+            }
+        }
+
+        writer.close();
     }
-
     @Override
     public String eval(int x, int y) { //מוציאה את הערך
         String ans = null;

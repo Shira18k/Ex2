@@ -1,11 +1,11 @@
-// Add your documentation below:
+/**SCell is the class that representing the most of Ex2's part one, what right**/
 import javax.management.StringValueExp;
 import java.util.Stack;
 
 public class SCell implements Cell {
     private String line;
-    private int type;  // להעתיק מUTILS כל סוג מה המספר
-    private Ex2Sheet sheet;
+    private int type;
+    private Ex2Sheet sheet; //because the functions not static
 
 
     public SCell(String s, Ex2Sheet sheet) { // shows in the table
@@ -28,7 +28,6 @@ public class SCell implements Cell {
     @Override
     public int getOrder() {
         // Add your code here
-
         return 0;
         // ///////////////////
     }
@@ -67,6 +66,11 @@ public class SCell implements Cell {
 
     }
 
+public static String replacePattern(String input) {
+    // Replace patterns with letter + number (0-99) with "0"
+    return input.replaceAll("(?i)[a-z][0-9]{1,2}\\b", "0");
+}
+
     public boolean isNumber(String a) { // if is a num
         try {
             Double.parseDouble(a);
@@ -89,10 +93,8 @@ public class SCell implements Cell {
         if (a == null || a.isEmpty()) {
             return false;
         }
-        if (Character.isLetter(a.charAt(0))) { // if cells
-            CellEntry cell = new CellEntry(a);
-            int x = cell.getX();
-            int y = cell.getY();
+        if (replacePattern(a) != null) {  // אם הפונקציה מחזירה משהו, סימן שהתאים הומרו
+            a = replacePattern(a);        // ההמרה לתוצאה החדשה
         }
 
         int equalsCount = 0;
@@ -224,6 +226,9 @@ public class SCell implements Cell {
         }
 
         if (formula.contains("-")) {
+            if (formula.charAt(0)=='-'&& isNumber(formula)){
+                return Double.parseDouble(formula);// לבדוק אם זה עובד
+            }
             int index = formula.indexOf('-');
             return computeForm(formula.substring(0, index)) - computeForm(formula.substring(index + 1));
         }

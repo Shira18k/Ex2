@@ -1,47 +1,48 @@
-//מימוש של אינדקס טו די והמטרה היא מציאה של אינדקסים מהטבלה לצורך התאמה לתאים
-public class CellEntry  implements Index2D {
+/**Implementation of an Index2D and the goal is to find indexes from the table for matching
+to cells*/
 
-    private String S;
-    Ex2Sheet sheet = new Ex2Sheet(26,99); // בנאי
+public class CellEntry implements Index2D {
 
-    public CellEntry(String s) {
-        if (s != null && !s.isEmpty()) {
-            this.S = s;
-        } else {
-            throw new IllegalArgumentException("Error");
+    private final String cell;
+    private final Ex2Sheet sheet = new Ex2Sheet(26, 99);
+
+    public CellEntry(String cell) {
+        if (cell == null || cell.isEmpty()) {
+            throw new IllegalArgumentException("Error: Cell string cannot be null or empty");
         }
+        this.cell = cell;
     }
 
+    @Override
     public String toString() {
+        try {
+            int columnIndex = Integer.parseInt(cell.substring(0, 1));
+            int rowIndex = Integer.parseInt(cell.substring(1));
 
-        int left = Integer.parseInt(this.S.substring(0, 1));
-        int right = Integer.parseInt(this.S.substring(1));
-
-
-        if ( sheet.isIn(left,right) ) {
-
-            String Column = Ex2Utils.ABC[left];
-            String rightString = Integer.toString(right);
-            String ans = Column + rightString;
-            return ans;
+            if (sheet.isIn(columnIndex, rowIndex)) {
+                String column = Ex2Utils.ABC[columnIndex];
+                return column + rowIndex;
+            }
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            return "Error";
         }
         return "Error";
     }
 
-    //Verifies si le format recu est correct
     @Override
     public boolean isValid() {
+        if (cell.length() < 2) {
+            return false;
+        }
 
-        String left = this.S.substring(0, 1);
-        String right = this.S.substring(1);
+        char left = cell.charAt(0);
+        String right = cell.substring(1);
 
-        if (left.length() == 1 && Character.isLetter(left.charAt(0))) {
+        if (Character.isLetter(left)) {
             try {
-                int rightNumber = Integer.parseInt(right);
-                if (rightNumber >= 0 && rightNumber <= 99) {
-                    return true;
-                }
-            } catch (Exception e) {
+                int rowIndex = Integer.parseInt(right);
+                return rowIndex >= 0 && rowIndex <= 99;
+            } catch (NumberFormatException e) {
                 return false;
             }
         }
@@ -54,23 +55,24 @@ public class CellEntry  implements Index2D {
             return Ex2Utils.ERR;
         }
 
-        String X = this.S.substring(0, 1).toUpperCase();
+        char columnChar = Character.toUpperCase(cell.charAt(0));
         for (int i = 0; i < Ex2Utils.ABC.length; i++) {
-            if (Ex2Utils.ABC[i].equals(X)) {
+            if (Ex2Utils.ABC[i].equals(String.valueOf(columnChar))) {
                 return i;
             }
         }
         return Ex2Utils.ERR;
     }
 
-
     @Override
     public int getY() {
         if (!isValid()) {
             return Ex2Utils.ERR;
         }
-        String right = this.S.substring(1 );
-        int ans = Integer.parseInt(right);
-        return ans;
+        try {
+            return Integer.parseInt(cell.substring(1));
+        } catch (NumberFormatException e) {
+            return Ex2Utils.ERR;
+        }
     }
 }
